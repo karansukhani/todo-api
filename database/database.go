@@ -31,6 +31,23 @@ func InitDB() {
 		log.Fatal("Cannot connect to DB: ", err)
 	}
 	fmt.Println("✅ Connected to the database")
+
+	err = MigrateDB()
+	if err != nil {
+		fmt.Println("Error migrating database: ", err)
+		return
+	}
+}
+
+func MigrateDB() error {
+	query := `
+	CREATE TABLE IF NOT EXISTS todo (
+		id SERIAL PRIMARY KEY,
+		name TEXT NOT NULL,
+		status BOOLEAN DEFAULT false
+	);`
+	_, err := DB.Exec(query)
+	return err
 }
 
 func InsertTodo(todo models.Todo) error {
@@ -74,7 +91,8 @@ func GetAllTodos() ([]models.Todo, error) {
 	}
 	defer rows.Close()
 
-	var todos []models.Todo
+	//What this does is create a empty slice instead of a nil slice so returning in response is easier
+	todos := make([]models.Todo, 0)
 
 	//Here rows.Next() iterates over the result set, moving to the next row each time it is called.
 	//If there are no more rows, it returns false and the loop ends.

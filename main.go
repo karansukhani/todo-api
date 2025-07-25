@@ -10,6 +10,7 @@ import (
 	"todo-api/constants"
 	"todo-api/database"
 	"todo-api/models"
+	"todo-api/rabbitmq"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -240,6 +241,7 @@ func handleDeleteTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	rabbitmq.ConnectRabbitMQ()
 
 	err := godotenv.Load()
 
@@ -249,6 +251,8 @@ func main() {
 	}
 
 	database.InitDB()
+
+	
 
 	router := mux.NewRouter()
 
