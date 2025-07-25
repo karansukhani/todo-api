@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"todo-api/models"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
@@ -11,19 +12,11 @@ import (
 
 var DB *sql.DB
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "123456" // your password
-	dbname   = "karansukhani"
-)
-
 // InitDB connects to the database
 func InitDB() {
 	// Step 1: Create connection string
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
 
 	// Step 2: Open connection
 	var err error
@@ -44,7 +37,7 @@ func InsertTodo(todo models.Todo) error {
 	query := `INSERT INTO todo (name, status) VALUES ($1, $2);`
 	// PostgreSQL uses numbered placeholders for query parameters.
 	//It helps avoid SQL injection and ensures values are escaped properly.
-	_, err := DB.Exec(query,todo.Title, todo.Status)
+	_, err := DB.Exec(query, todo.Title, todo.Status)
 	return err
 }
 
@@ -62,7 +55,6 @@ func UpdateTodo(todo models.Todo) error {
 	}
 
 	fmt.Printf("Updated %d rows for id %d\n", rowsAffected, todo.Id)
-
 
 	if rowsAffected == 0 {
 		return sql.ErrNoRows

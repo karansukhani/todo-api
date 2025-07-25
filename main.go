@@ -12,6 +12,7 @@ import (
 	"todo-api/models"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 type ApiResponse struct {
@@ -239,6 +240,14 @@ func handleDeleteTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	err := godotenv.Load()
+
+	if err != nil {
+		fmt.Println("Error loading .env file: ", err)
+		return
+	}
+
 	database.InitDB()
 
 	router := mux.NewRouter()
@@ -249,10 +258,11 @@ func main() {
 	router.HandleFunc("/todo/{id}", handleUpdateTodo).Methods(http.MethodPut)
 	router.HandleFunc("/todo/{id}", handleDeleteTodo).Methods(http.MethodDelete)
 
-	err := http.ListenAndServe(":8080", router)
+	err = http.ListenAndServe(":8080", router)
 
 	if err != nil {
 		fmt.Println("Error starting server: ", err)
+		return
 	}
 
 }
